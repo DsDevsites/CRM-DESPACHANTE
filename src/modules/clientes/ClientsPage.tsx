@@ -1,1 +1,1 @@
-import {ModulePage} from "../../components/modules";export function ClientsPage(){return <ModulePage eyebrow="CADASTRO" title="Clientes" description="Centralize dados de proprietários e acompanhe o histórico de atendimento." action="Novo cliente"/>}
+import {ModulePage} from "../../components/modules";export function ClientsPage(){return <ModulePage eyebrow="CADASTRO DE CLIENTES" title="Clientes" description="Centralize os dados dos clientes, proprietários e o histórico de atendimento do escritório." action="Novo cliente"/>}
