@@ -81,10 +81,6 @@ create policy "profiles_select_own" on public.profiles for select to authenticat
 create policy "profiles_insert_own" on public.profiles for insert to authenticated with check((select auth.uid())=id);
 create policy "profiles_update_own" on public.profiles for update to authenticated using((select auth.uid())=id) with check((select auth.uid())=id);
 
-create policy "tenants_select_member" on public.tenants for select to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=tenants.id and m.user_id=(select auth.uid()) and m.active));
-create policy "tenants_insert_creator" on public.tenants for insert to authenticated with check((select auth.uid())=created_by);
-create policy "tenants_update_admin" on public.tenants for update to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=tenants.id and m.user_id=(select auth.uid()) and m.active and m.role in('owner','admin'))) with check(exists(select 1 from public.memberships m where m.tenant_id=tenants.id and m.user_id=(select auth.uid()) and m.active and m.role in('owner','admin')));
-
 create schema if not exists private;
 
 create or replace function private.is_tenant_member(p_tenant_id uuid)
