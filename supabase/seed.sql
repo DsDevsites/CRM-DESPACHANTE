@@ -1,0 +1,1 @@
+-- Seed intencionalmente vazio. Usuários e empresas entram pelo Auth + onboarding.

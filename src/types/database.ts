@@ -1,0 +1,10 @@
+export type UserRole="owner"|"admin"|"operator"|"viewer";
+export type ProcessStatus="pre_cadastro"|"aguardando_documentos"|"documentacao_completa"|"em_analise"|"protocolo"|"concluido"|"cancelado";
+export type AppointmentStatus="scheduled"|"confirmed"|"completed"|"cancelled"|"no_show";
+export interface Tenant{id:string;name:string;document:string|null;phone:string|null;email:string|null;city:string|null;state:string|null;logo_url:string|null}
+export interface Profile{id:string;full_name:string|null;phone:string|null;avatar_url:string|null}
+export interface Membership{id:string;tenant_id:string;user_id:string;role:UserRole;active:boolean}
+export interface Client{id:string;tenant_id:string;name:string;document:string|null;rg:string|null;email:string|null;phone:string|null;whatsapp:string|null;address:string|null;city:string|null;state:string|null;notes:string|null;created_at:string}
+export interface Vehicle{id:string;tenant_id:string;client_id:string|null;plate:string|null;renavam:string|null;chassis:string|null;brand:string|null;model:string|null;year_manufacture:number|null;year_model:number|null;color:string|null;fuel:string|null;status:string;created_at:string}
+export interface TransferProcess{id:string;tenant_id:string;client_id:string|null;vehicle_id:string|null;protocol:string|null;status:ProcessStatus;service_type:string;notes:string|null;opened_at:string;due_date:string|null;completed_at:string|null}
+export interface Appointment{id:string;tenant_id:string;client_id:string|null;process_id:string|null;title:string;starts_at:string;ends_at:string;status:AppointmentStatus;location:string|null;notes:string|null}

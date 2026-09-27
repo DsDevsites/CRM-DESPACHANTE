@@ -1,0 +1,1 @@
+export function EmptyState({title,description,action}:{title:string;description:string;action?:string}){return <div className="empty-state"><div className="empty-icon">□</div><h3>{title}</h3><p>{description}</p>{action&&<button className="primary-button">{action}</button>}</div>}

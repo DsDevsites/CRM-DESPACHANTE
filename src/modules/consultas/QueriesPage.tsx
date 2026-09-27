@@ -1,0 +1,1 @@
+import {ModulePage} from "../../components/modules";export function QueriesPage(){return <ModulePage eyebrow="CENTRAL DE PESQUISA" title="Consultas" description="Um ponto único para consultas veiculares, histórico e futuras integrações oficiais." action="Nova consulta"/>}

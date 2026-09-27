@@ -1,0 +1,1 @@
+import {ModulePage} from "../../components/modules";export function AgendaPage(){return <ModulePage eyebrow="ATENDIMENTOS" title="Agenda" description="Visitas, vistorias, entregas e compromissos do escritório." action="Novo compromisso"/>}

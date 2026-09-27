@@ -1,0 +1,3 @@
+import type {ReactNode} from "react";import type {AppRoute} from "../../lib/router";import {Sidebar} from "./Sidebar";import {Topbar} from "./Topbar";
+const titles:Record<AppRoute,string>={dashboard:"Visão geral",clientes:"Clientes",veiculos:"Veículos",consultas:"Consultas",ipva:"IPVA / SEFAZ-MG",processos:"Processos",documentos:"Documentos",agenda:"Agenda",configuracoes:"Configurações"};
+export function AppShell({route,children}:{route:AppRoute;children:ReactNode}){return <div className="app-shell"><Sidebar active={route}/><div className="main-area"><Topbar title={titles[route]}/><main className="content">{children}</main></div></div>}

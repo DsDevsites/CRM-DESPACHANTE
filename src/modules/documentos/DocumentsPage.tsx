@@ -1,0 +1,1 @@
+import {ModulePage} from "../../components/modules";export function DocumentsPage(){return <ModulePage eyebrow="ARQUIVOS" title="Documentos" description="Controle de documentos exigidos por serviço e acompanhe pendências." action="Adicionar documento"/>}

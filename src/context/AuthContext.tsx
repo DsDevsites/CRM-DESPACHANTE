@@ -1,0 +1,9 @@
+import {createContext,useContext,useEffect,useMemo,useState,type ReactNode} from "react";
+import type {Session,User} from "@supabase/supabase-js";
+import {isSupabaseConfigured,supabase} from "../lib/supabase";
+interface AuthValue{session:Session|null;user:User|null;loading:boolean;demoMode:boolean;signIn:(e:string,p:string)=>Promise<{error:string|null}>;signUp:(e:string,p:string,n:string)=>Promise<{error:string|null}>;signOut:()=>Promise<void>;enterDemo:()=>void}
+const C=createContext<AuthValue|undefined>(undefined);
+export function AuthProvider({children}:{children:ReactNode}){const[session,setSession]=useState<Session|null>(null);const[user,setUser]=useState<User|null>(null);const[loading,setLoading]=useState(isSupabaseConfigured);const[demoMode,setDemo]=useState(false);
+useEffect(()=>{if(!supabase)return;supabase.auth.getSession().then(({data})=>{setSession(data.session);setUser(data.session?.user??null);setLoading(false)});const{data}=supabase.auth.onAuthStateChange((_e,s)=>{setSession(s);setUser(s?.user??null);setLoading(false)});return()=>data.subscription.unsubscribe()},[]);
+const value=useMemo<AuthValue>(()=>({session,user,loading,demoMode,async signIn(e,p){if(!supabase)return{error:"Supabase ainda não foi configurado."};const{error}=await supabase.auth.signInWithPassword({email:e,password:p});return{error:error?.message??null}},async signUp(e,p,n){if(!supabase)return{error:"Supabase ainda não foi configurado."};const{error}=await supabase.auth.signUp({email:e,password:p,options:{data:{full_name:n}}});return{error:error?.message??null}},async signOut(){if(supabase)await supabase.auth.signOut();setDemo(false);setSession(null);setUser(null)},enterDemo(){setDemo(true)}}),[session,user,loading,demoMode]);return <C.Provider value={value}>{children}</C.Provider>}
+export function useAuth(){const c=useContext(C);if(!c)throw new Error("useAuth deve ser usado dentro de AuthProvider");return c}
