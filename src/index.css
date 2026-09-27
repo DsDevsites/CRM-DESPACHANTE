@@ -195,3 +195,17 @@ input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(215,25,32,.09)}
 .reject-button{background:#fff5f5;border-color:#f0c4c7;color:#b3131a}
 @media(max-width:900px){.doc-summary-grid{grid-template-columns:repeat(3,1fr)}.document-card{align-items:flex-start;flex-direction:column}.document-actions{width:100%;justify-content:flex-start}}
 @media(max-width:600px){.doc-summary-grid{grid-template-columns:repeat(2,1fr)}.doc-toolbar{align-items:stretch;flex-direction:column}.doc-toolbar input{max-width:none}.document-actions{display:grid;grid-template-columns:repeat(2,1fr)}.document-actions button,.file-button{width:100%;text-align:center}.document-main{align-items:flex-start}}
+
+.process-doc-progress{margin-top:9px;padding-top:9px;border-top:1px solid #f0f0f0;display:grid;gap:7px}
+.process-doc-progress>div:first-child{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.process-doc-progress span{font-size:9px;color:#888}.process-doc-progress strong{font-size:9px;color:#555}
+.process-progress-bar{height:5px!important;background:#eee;border-radius:99px;overflow:hidden}
+.process-progress-bar i{display:block;height:100%;background:var(--red);border-radius:99px}
+.process-documents{margin-top:8px;border-top:1px solid #eee;padding-top:7px;display:grid;gap:5px}
+.process-doc-row{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:7px 0}
+.process-doc-row>div{min-width:0}.process-doc-row strong{display:block;font-size:10px}.process-doc-row small{display:block;font-size:8px;color:#888;margin-top:2px;line-height:1.35}
+.process-doc-empty{font-size:9px;color:#999;padding:7px 0}
+.doc-status-mini{flex:0 0 auto;border-radius:999px;padding:3px 6px;font-size:7px;font-weight:900;text-transform:uppercase}
+.doc-mini-pending{background:#f5f5f5;color:#777}.doc-mini-uploaded{background:#fff6e8;color:#9a5c00}.doc-mini-approved{background:#eef9f2;color:#287044}.doc-mini-rejected{background:#fff0f1;color:#b3131a}
+.process-doc-progress .compact{font-size:9px;padding:6px 8px;justify-self:start}
+@media(max-width:700px){.process-doc-row{align-items:flex-start}.process-doc-progress>div:first-child{align-items:flex-start}.process-doc-progress>div:first-child strong{text-align:right}}
