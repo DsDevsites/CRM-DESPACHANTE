@@ -33,10 +33,10 @@ export function OnboardingPage(){
   }
 
   return <main className="auth-page"><section className="auth-card onboarding-card">
-    <div className="brand-mark large">CD</div>
-    <p className="eyebrow">CONFIGURAÇÃO INICIAL</p>
+    <div className="brand-lockup"><div className="brand-mark large">DF</div><div><p className="eyebrow">DESP FAST</p><span className="brand-subtitle">GESTÃO PARA DESPACHANTES</span></div></div>
+    <p className="eyebrow">PRIMEIRO ACESSO</p>
     <h1>Configure seu escritório</h1>
-    <p className="muted">Essas informações identificam o seu escritório dentro do CRM. Você poderá atualizar os dados e adicionar usuários depois.</p>
+    <p className="muted">Cadastre os dados básicos do escritório para começar. Depois você poderá atualizar as informações e adicionar usuários da equipe.</p>
     <form onSubmit={submit} className="form-stack">
       <label>Nome do escritório<input value={name} onChange={e=>setName(e.target.value)} placeholder="Despachante Exemplo" required/></label>
       <label>CPF/CNPJ<input value={document} onChange={e=>setDocument(e.target.value)} placeholder="00.000.000/0001-00"/></label>
