@@ -700,3 +700,7 @@ button,input,select,textarea{touch-action:manipulation}
   .logo-preview{align-items:flex-start;flex-direction:column}
   .logo-preview img{width:100%;height:90px}
 }
+
+.topbar-title-wrap{display:flex;align-items:center;gap:10px;min-width:0}
+.topbar-logo{width:34px;height:34px;object-fit:contain;border-radius:9px;background:#fff;border:1px solid #eee;box-shadow:0 5px 14px rgba(0,0,0,.05);flex:0 0 auto}
+@media(max-width:760px){.topbar-logo{width:32px;height:32px}.topbar-title-wrap .eyebrow{margin-bottom:3px}}
