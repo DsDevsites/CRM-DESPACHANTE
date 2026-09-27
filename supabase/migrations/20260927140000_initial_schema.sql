@@ -85,40 +85,129 @@ create policy "tenants_select_member" on public.tenants for select to authentica
 create policy "tenants_insert_creator" on public.tenants for insert to authenticated with check((select auth.uid())=created_by);
 create policy "tenants_update_admin" on public.tenants for update to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=tenants.id and m.user_id=(select auth.uid()) and m.active and m.role in('owner','admin'))) with check(exists(select 1 from public.memberships m where m.tenant_id=tenants.id and m.user_id=(select auth.uid()) and m.active and m.role in('owner','admin')));
 
-create policy "memberships_select_self" on public.memberships for select to authenticated using(user_id=(select auth.uid()));
-create policy "memberships_insert_admin" on public.memberships for insert to authenticated with check(exists(select 1 from public.memberships m where m.tenant_id=memberships.tenant_id and m.user_id=(select auth.uid()) and m.active and m.role in('owner','admin')));
-create policy "memberships_update_admin" on public.memberships for update to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=memberships.tenant_id and m.user_id=(select auth.uid()) and m.active and m.role in('owner','admin'))) with check(exists(select 1 from public.memberships m where m.tenant_id=memberships.tenant_id and m.user_id=(select auth.uid()) and m.active and m.role in('owner','admin')));
-create policy "memberships_delete_admin" on public.memberships for delete to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=memberships.tenant_id and m.user_id=(select auth.uid()) and m.active and m.role in('owner','admin')));
+create schema if not exists private;
 
-create policy "clients_select_tenant" on public.clients for select to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=clients.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "clients_insert_tenant" on public.clients for insert to authenticated with check(exists(select 1 from public.memberships m where m.tenant_id=clients.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "clients_update_tenant" on public.clients for update to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=clients.tenant_id and m.user_id=(select auth.uid()) and m.active)) with check(exists(select 1 from public.memberships m where m.tenant_id=clients.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "clients_delete_tenant" on public.clients for delete to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=clients.tenant_id and m.user_id=(select auth.uid()) and m.active));
+create or replace function private.is_tenant_member(p_tenant_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = ''
+stable
+as $$
+  select exists (
+    select 1
+    from public.memberships
+    where tenant_id = p_tenant_id
+      and user_id = (select auth.uid())
+      and active = true
+  );
+$$;
 
-create policy "vehicles_select_tenant" on public.vehicles for select to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=vehicles.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "vehicles_insert_tenant" on public.vehicles for insert to authenticated with check(exists(select 1 from public.memberships m where m.tenant_id=vehicles.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "vehicles_update_tenant" on public.vehicles for update to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=vehicles.tenant_id and m.user_id=(select auth.uid()) and m.active)) with check(exists(select 1 from public.memberships m where m.tenant_id=vehicles.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "vehicles_delete_tenant" on public.vehicles for delete to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=vehicles.tenant_id and m.user_id=(select auth.uid()) and m.active));
+create or replace function private.has_tenant_role(p_tenant_id uuid, p_roles public.user_role[])
+returns boolean
+language sql
+security definer
+set search_path = ''
+stable
+as $$
+  select exists (
+    select 1
+    from public.memberships
+    where tenant_id = p_tenant_id
+      and user_id = (select auth.uid())
+      and active = true
+      and role = any(p_roles)
+  );
+$$;
 
-create policy "searches_select_tenant" on public.vehicle_searches for select to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=vehicle_searches.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "searches_insert_tenant" on public.vehicle_searches for insert to authenticated with check(exists(select 1 from public.memberships m where m.tenant_id=vehicle_searches.tenant_id and m.user_id=(select auth.uid()) and m.active));
+revoke all on function private.is_tenant_member(uuid) from public;
+revoke all on function private.has_tenant_role(uuid, public.user_role[]) from public;
+grant usage on schema private to authenticated;
+grant execute on function private.is_tenant_member(uuid) to authenticated;
+grant execute on function private.has_tenant_role(uuid, public.user_role[]) to authenticated;
 
-create policy "ipva_select_tenant" on public.ipva_queries for select to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=ipva_queries.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "ipva_insert_tenant" on public.ipva_queries for insert to authenticated with check(exists(select 1 from public.memberships m where m.tenant_id=ipva_queries.tenant_id and m.user_id=(select auth.uid()) and m.active));
+create or replace function public.create_tenant(
+  p_name text,
+  p_document text default null,
+  p_phone text default null,
+  p_email text default null,
+  p_city text default null,
+  p_state text default 'MG'
+)
+returns public.tenants
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_tenant public.tenants;
+  v_user uuid := (select auth.uid());
+begin
+  if v_user is null then
+    raise exception 'authentication required';
+  end if;
 
-create policy "processes_select_tenant" on public.transfer_processes for select to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=transfer_processes.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "processes_insert_tenant" on public.transfer_processes for insert to authenticated with check(exists(select 1 from public.memberships m where m.tenant_id=transfer_processes.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "processes_update_tenant" on public.transfer_processes for update to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=transfer_processes.tenant_id and m.user_id=(select auth.uid()) and m.active)) with check(exists(select 1 from public.memberships m where m.tenant_id=transfer_processes.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "processes_delete_tenant" on public.transfer_processes for delete to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=transfer_processes.tenant_id and m.user_id=(select auth.uid()) and m.active));
+  insert into public.tenants(name,document,phone,email,city,state,created_by)
+  values(p_name,p_document,p_phone,p_email,p_city,p_state,v_user)
+  returning * into v_tenant;
 
-create policy "documents_select_tenant" on public.process_documents for select to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=process_documents.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "documents_insert_tenant" on public.process_documents for insert to authenticated with check(exists(select 1 from public.memberships m where m.tenant_id=process_documents.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "documents_update_tenant" on public.process_documents for update to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=process_documents.tenant_id and m.user_id=(select auth.uid()) and m.active)) with check(exists(select 1 from public.memberships m where m.tenant_id=process_documents.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "documents_delete_tenant" on public.process_documents for delete to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=process_documents.tenant_id and m.user_id=(select auth.uid()) and m.active));
+  insert into public.memberships(tenant_id,user_id,role,active)
+  values(v_tenant.id,v_user,'owner',true);
 
-create policy "appointments_select_tenant" on public.appointments for select to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=appointments.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "appointments_insert_tenant" on public.appointments for insert to authenticated with check(exists(select 1 from public.memberships m where m.tenant_id=appointments.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "appointments_update_tenant" on public.appointments for update to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=appointments.tenant_id and m.user_id=(select auth.uid()) and m.active)) with check(exists(select 1 from public.memberships m where m.tenant_id=appointments.tenant_id and m.user_id=(select auth.uid()) and m.active));
-create policy "appointments_delete_tenant" on public.appointments for delete to authenticated using(exists(select 1 from public.memberships m where m.tenant_id=appointments.tenant_id and m.user_id=(select auth.uid()) and m.active));
+  return v_tenant;
+end;
+$$;
+
+revoke all on function public.create_tenant(text,text,text,text,text,text) from public;
+grant execute on function public.create_tenant(text,text,text,text,text,text) to authenticated;
+
+create policy "tenants_select_member" on public.tenants for select to authenticated
+using ((select private.is_tenant_member(tenants.id)));
+create policy "tenants_insert_creator" on public.tenants for insert to authenticated
+with check ((select auth.uid()) = created_by);
+create policy "tenants_update_admin" on public.tenants for update to authenticated
+using ((select private.has_tenant_role(tenants.id, array['owner','admin']::public.user_role[])))
+with check ((select private.has_tenant_role(tenants.id, array['owner','admin']::public.user_role[])));
+
+create policy "memberships_select_tenant" on public.memberships for select to authenticated
+using ((select private.is_tenant_member(memberships.tenant_id)));
+create policy "memberships_insert_admin" on public.memberships for insert to authenticated
+with check ((select private.has_tenant_role(memberships.tenant_id, array['owner','admin']::public.user_role[])));
+create policy "memberships_update_admin" on public.memberships for update to authenticated
+using ((select private.has_tenant_role(memberships.tenant_id, array['owner','admin']::public.user_role[])))
+with check ((select private.has_tenant_role(memberships.tenant_id, array['owner','admin']::public.user_role[])));
+create policy "memberships_delete_admin" on public.memberships for delete to authenticated
+using ((select private.has_tenant_role(memberships.tenant_id, array['owner','admin']::public.user_role[])));
+
+create policy "clients_select_tenant" on public.clients for select to authenticated using((select private.is_tenant_member(clients.tenant_id)));
+create policy "clients_insert_tenant" on public.clients for insert to authenticated with check((select private.is_tenant_member(clients.tenant_id)));
+create policy "clients_update_tenant" on public.clients for update to authenticated using((select private.is_tenant_member(clients.tenant_id))) with check((select private.is_tenant_member(clients.tenant_id)));
+create policy "clients_delete_tenant" on public.clients for delete to authenticated using((select private.is_tenant_member(clients.tenant_id)));
+
+create policy "vehicles_select_tenant" on public.vehicles for select to authenticated using((select private.is_tenant_member(vehicles.tenant_id)));
+create policy "vehicles_insert_tenant" on public.vehicles for insert to authenticated with check((select private.is_tenant_member(vehicles.tenant_id)));
+create policy "vehicles_update_tenant" on public.vehicles for update to authenticated using((select private.is_tenant_member(vehicles.tenant_id))) with check((select private.is_tenant_member(vehicles.tenant_id)));
+create policy "vehicles_delete_tenant" on public.vehicles for delete to authenticated using((select private.is_tenant_member(vehicles.tenant_id)));
+
+create policy "searches_select_tenant" on public.vehicle_searches for select to authenticated using((select private.is_tenant_member(vehicle_searches.tenant_id)));
+create policy "searches_insert_tenant" on public.vehicle_searches for insert to authenticated with check((select private.is_tenant_member(vehicle_searches.tenant_id)));
+
+create policy "ipva_select_tenant" on public.ipva_queries for select to authenticated using((select private.is_tenant_member(ipva_queries.tenant_id)));
+create policy "ipva_insert_tenant" on public.ipva_queries for insert to authenticated with check((select private.is_tenant_member(ipva_queries.tenant_id)));
+
+create policy "processes_select_tenant" on public.transfer_processes for select to authenticated using((select private.is_tenant_member(transfer_processes.tenant_id)));
+create policy "processes_insert_tenant" on public.transfer_processes for insert to authenticated with check((select private.is_tenant_member(transfer_processes.tenant_id)));
+create policy "processes_update_tenant" on public.transfer_processes for update to authenticated using((select private.is_tenant_member(transfer_processes.tenant_id))) with check((select private.is_tenant_member(transfer_processes.tenant_id)));
+create policy "processes_delete_tenant" on public.transfer_processes for delete to authenticated using((select private.is_tenant_member(transfer_processes.tenant_id)));
+
+create policy "documents_select_tenant" on public.process_documents for select to authenticated using((select private.is_tenant_member(process_documents.tenant_id)));
+create policy "documents_insert_tenant" on public.process_documents for insert to authenticated with check((select private.is_tenant_member(process_documents.tenant_id)));
+create policy "documents_update_tenant" on public.process_documents for update to authenticated using((select private.is_tenant_member(process_documents.tenant_id))) with check((select private.is_tenant_member(process_documents.tenant_id)));
+create policy "documents_delete_tenant" on public.process_documents for delete to authenticated using((select private.is_tenant_member(process_documents.tenant_id)));
+
+create policy "appointments_select_tenant" on public.appointments for select to authenticated using((select private.is_tenant_member(appointments.tenant_id)));
+create policy "appointments_insert_tenant" on public.appointments for insert to authenticated with check((select private.is_tenant_member(appointments.tenant_id)));
+create policy "appointments_update_tenant" on public.appointments for update to authenticated using((select private.is_tenant_member(appointments.tenant_id))) with check((select private.is_tenant_member(appointments.tenant_id)));
+create policy "appointments_delete_tenant" on public.appointments for delete to authenticated using((select private.is_tenant_member(appointments.tenant_id)));
 
 -- O primeiro membership owner será criado pelo onboarding transacional.
