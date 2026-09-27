@@ -34,16 +34,16 @@ export function OnboardingPage(){
 
   return <main className="auth-page"><section className="auth-card onboarding-card">
     <div className="brand-mark large">CD</div>
-    <p className="eyebrow">PRIMEIRO ACESSO</p>
+    <p className="eyebrow">CONFIGURAÇÃO INICIAL</p>
     <h1>Configure seu escritório</h1>
-    <p className="muted">Esses dados criam o ambiente isolado do seu despachante. Depois você poderá completar e alterar as informações.</p>
+    <p className="muted">Essas informações identificam o seu escritório dentro do CRM. Você poderá atualizar os dados e adicionar usuários depois.</p>
     <form onSubmit={submit} className="form-stack">
       <label>Nome do escritório<input value={name} onChange={e=>setName(e.target.value)} placeholder="Despachante Exemplo" required/></label>
       <label>CPF/CNPJ<input value={document} onChange={e=>setDocument(e.target.value)} placeholder="00.000.000/0001-00"/></label>
       <label>Telefone / WhatsApp<input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="(31) 00000-0000"/></label>
       <label>Cidade<input value={city} onChange={e=>setCity(e.target.value)} placeholder="Ouro Branco"/></label>
       {error&&<div className="form-message">{error}</div>}
-      <button className="primary-button" disabled={busy}>{busy?"Criando ambiente...":"Criar meu escritório"}</button>
+      <button className="primary-button" disabled={busy}>{busy?"Criando ambiente...":"Continuar para o CRM"}</button>
     </form>
   </section></main>
 }
