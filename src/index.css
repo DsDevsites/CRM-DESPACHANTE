@@ -713,3 +713,21 @@ button,input,select,textarea{touch-action:manipulation}
   .admin-access-button{position:absolute;top:76px;right:14px;z-index:4;max-width:180px;white-space:normal}
   .topbar:has(.admin-access-button){padding-bottom:62px}
 }
+
+/* Central de consultas */
+.query-panel{min-height:280px}
+.query-badge{display:inline-flex;align-items:center;padding:5px 8px;border:1px solid #f1d0d2;border-radius:999px;background:#fff6f6;color:var(--red);font-size:8px;font-weight:900;letter-spacing:.08em}
+.query-form{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-top:18px}
+.query-form label{min-width:0}
+.query-form .primary-button{height:45px;white-space:nowrap}
+.query-message{margin-top:12px;padding:10px 12px;border:1px solid #f0c4c7;border-radius:10px;background:#fff7f7;color:#8f171c;font-size:11px;line-height:1.5}
+.query-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:18px;padding-top:14px;border-top:1px solid #eee;color:#777;font-size:9px;font-weight:700}
+.query-flow i{color:var(--red);font-style:normal}
+.query-secondary{width:100%;margin-top:10px}
+.ipva-official-card{align-items:center}
+.ipva-official-card .primary-button{white-space:nowrap}
+@media(max-width:700px){
+ .query-form{grid-template-columns:1fr}
+ .query-form .primary-button{width:100%}
+ .ipva-official-card .primary-button{width:100%}
+}
